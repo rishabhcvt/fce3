@@ -690,6 +690,18 @@
                     <textarea id="comment" class="text-16" rows="4" placeholder="Your Comment *" name="message"
                       required></textarea>
                   </div>
+                  <div class="field">
+                    <label for="ContactForm-file" class="visually-hidden">
+                      Upload File
+                    </label>
+
+                    <input id="file" class="text-16" type="file" name="file"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip">
+
+                    <small>
+                      Optional — PDF, DOC, DOCX, JPG, PNG or ZIP
+                    </small>
+                  </div>
                   <div class="form-button">
                     <button type="submit" class="button button--secondary" aria-label="Send Message">
                       Send Message
@@ -916,136 +928,280 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-      const contactForm = document.getElementById("contactForm");
+      const contactForm =
+        document.getElementById("contactForm");
+
 
       if (!contactForm) {
+
         console.error("contactForm not found");
+
         return;
       }
 
 
-      contactForm.addEventListener("submit", async function (e) {
+      contactForm.addEventListener(
+        "submit",
+        async function (e) {
 
-        e.preventDefault();
-
-
-        // Get the actual button that submitted the form
-        const submitButton = e.submitter;
+          e.preventDefault();
 
 
-        if (!submitButton) {
-          console.error("Submit button not found");
-          return;
-        }
+          const submitButton = e.submitter;
 
 
-        // Google Apps Script Web App URL
-        const scriptURL =
-          "https://script.google.com/macros/s/AKfycbxHMlasi0fy8GR8LYQw6Z5dpTB34K8EPSpCkMiQqgI9rfJw-LLsYT5CCra8SrVGnyqf/exec";
+          if (!submitButton) {
+
+            console.error("Submit button not found");
+
+            return;
+          }
 
 
-        // Disable button
-        submitButton.disabled = true;
-
-        submitButton.innerHTML = "Sending...";
+          const scriptURL =
+            "https://script.google.com/macros/s/AKfycbxHMlasi0fy8GR8LYQw6Z5dpTB34K8EPSpCkMiQqgI9rfJw-LLsYT5CCra8SrVGnyqf/exec";
 
 
-        // Collect form data
-        const formData = {
+          submitButton.disabled = true;
 
-          name: document.getElementById("name").value.trim(),
-
-          phone: document.getElementById("phone").value.trim(),
-
-          email: document.getElementById("email").value.trim(),
-
-          designation: document.getElementById("designation").value.trim(),
-
-          service: document.getElementById("service").value.trim(),
-
-          message: document.getElementById("comment").value.trim()
-
-        };
+          submitButton.innerText = "Sending...";
 
 
-        console.log("Sending form data:", formData);
+          try {
+
+            /*
+             * GET FILE
+             */
+
+            const fileInput =
+              document.getElementById("file");
+
+            const file =
+              fileInput.files[0];
 
 
-        try {
-
-          const response = await fetch(scriptURL, {
-
-            method: "POST",
-
-            body: JSON.stringify(formData)
-
-          });
+            let fileData = null;
 
 
-          const result = await response.json();
+            /*
+             * OPTIONAL FILE
+             */
+
+            if (file) {
+
+              /*
+               * 5 MB MAXIMUM
+               */
+
+              if (file.size > 5 * 1024 * 1024) {
+
+                alert(
+                  "File size must be less than 5 MB."
+                );
+
+                submitButton.disabled = false;
+
+                submitButton.innerText =
+                  "Send Message";
+
+                return;
+              }
 
 
-          console.log("Google response:", result);
+              const base64 =
+                await fileToBase64(file);
 
 
-          if (result.success === true) {
+              fileData = {
 
-            alert(
-              "Thank you! Your enquiry has been submitted successfully."
+                name: file.name,
+
+                type: file.type,
+
+                data: base64
+
+              };
+
+            }
+
+
+            /*
+             * FORM DATA
+             */
+
+            const formData = {
+
+              name:
+                document
+                  .getElementById("name")
+                  .value
+                  .trim(),
+
+
+              designation:
+                document
+                  .getElementById("designation")
+                  .value
+                  .trim(),
+
+
+              phone:
+                document
+                  .getElementById("phone")
+                  .value
+                  .trim(),
+
+
+              email:
+                document
+                  .getElementById("email")
+                  .value
+                  .trim(),
+
+
+              service:
+                document
+                  .getElementById("service")
+                  .value
+                  .trim(),
+
+
+              message:
+                document
+                  .getElementById("comment")
+                  .value
+                  .trim(),
+
+
+              file: fileData
+
+            };
+
+
+            console.log(
+              "Sending form data:",
+              formData
             );
 
-            contactForm.reset();
 
-          } else {
+            /*
+             * SEND TO GOOGLE APPS SCRIPT
+             */
 
-            alert(
-              "Something went wrong. Please try again."
+            const response = await fetch(
+              scriptURL,
+              {
+
+                method: "POST",
+
+                body: JSON.stringify(formData)
+
+              }
             );
 
-            console.error("Google Apps Script error:", result);
+
+            const result =
+              await response.json();
+
+
+            console.log(
+              "Google response:",
+              result
+            );
+
+
+            if (result.success === true) {
+
+              alert(
+                "Thank you! Your enquiry has been submitted successfully."
+              );
+
+
+              contactForm.reset();
+
+            }
+
+            else {
+
+              alert(
+                "Something went wrong. Please try again."
+              );
+
+
+              console.error(
+                "Apps Script error:",
+                result
+              );
+
+            }
+
+
+          }
+
+          catch (error) {
+
+            console.error(
+              "Form submission error:",
+              error
+            );
+
+
+            alert(
+              "Unable to submit the form. Please try again."
+            );
 
           }
 
 
-        } catch (error) {
+          submitButton.disabled = false;
 
-          console.error("Form submission error:", error);
-
-          alert(
-            "Unable to submit the form. Please try again."
-          );
+          submitButton.innerText =
+            "Send Message";
 
         }
-
-
-        // Restore button
-        submitButton.disabled = false;
-
-        submitButton.innerHTML = `
-            Send Message
-            <span class="svg-wrapper">
-                <svg
-                    class="icon-20"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        d="M13.3365 7.84518L6.16435 15.0173L4.98584 13.8388L12.158 6.66667H5.83652V5H15.0032V14.1667H13.3365V14.1667Z"
-                        fill="currentColor"
-                    ></path>
-                </svg>
-            </span>
-        `;
-
-      });
+      );
 
     });
 
-  </script>
 
+    /*
+     * CONVERT FILE TO BASE64
+     */
+
+    function fileToBase64(file) {
+
+      return new Promise(
+        (resolve, reject) => {
+
+          const reader =
+            new FileReader();
+
+
+          reader.onload = () => {
+
+            const base64String =
+              reader
+                .result
+                .split(",")[1];
+
+
+            resolve(base64String);
+
+          };
+
+
+          reader.onerror =
+            error => reject(error);
+
+
+          reader.readAsDataURL(file);
+
+        }
+      );
+
+    }
+
+  </script>
 
 </body>
 

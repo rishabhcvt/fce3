@@ -644,7 +644,7 @@
                     Feel free to contact with us, we don't spam your email
                   </p>
                 </div>
-                <form action="submit-form.php" method="POST" class="form contact-form" data-aos="fade-up">
+                <form id="contactForm" class="form contact-form" data-aos="fade-up">
                   <div class="field">
                     <label for="ContactForm-name" class="visually-hidden">
                       Your Name
@@ -899,6 +899,86 @@
   <!-- all js -->
   <script src="assets/js/vendor.js" defer></script>
   <script src="assets/js/main.js" defer></script>
+
+  <script>
+
+const contactForm = document.getElementById("contactForm");
+
+const submitButton = document.getElementById("submitButton");
+
+contactForm.addEventListener("submit", async function (e) {
+
+    e.preventDefault();
+
+    // Change this to your Google Apps Script Web App URL
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxHMlasi0fy8GR8LYQw6Z5dpTB34K8EPSpCkMiQqgI9rfJw-LLsYT5CCra8SrVGnyqf/exec";
+
+
+    // Disable button while submitting
+    submitButton.disabled = true;
+
+    submitButton.innerText = "Sending...";
+
+
+    // Collect form data
+    const formData = {
+
+        name: document.getElementById("name").value.trim(),
+
+        phone: document.getElementById("phone").value.trim(),
+
+        email: document.getElementById("email").value.trim(),
+
+        service: document.getElementById("service").value.trim(),
+
+        message: document.getElementById("comment").value.trim()
+
+    };
+
+
+    try {
+
+        const response = await fetch(scriptURL, {
+
+            method: "POST",
+
+            body: JSON.stringify(formData)
+
+        });
+
+
+        const result = await response.json();
+
+
+        if (result.status === "success") {
+
+            alert("Thank you! Your enquiry has been submitted successfully.");
+
+            contactForm.reset();
+
+        } else {
+
+            alert("Something went wrong. Please try again.");
+
+        }
+
+
+    } catch (error) {
+
+        console.error("Form submission error:", error);
+
+        alert("Unable to submit the form. Please try again.");
+
+    }
+
+
+    submitButton.disabled = false;
+
+    submitButton.innerText = "Send Message";
+
+});
+
+</script>
 </body>
 
 </html>

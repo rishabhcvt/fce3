@@ -669,6 +669,14 @@
                     <input id="email" class="text-16" type="email" placeholder="Email Here *" name="email" required>
                   </div>
                   <div class="field">
+                    <label for="ContactForm-designation" class="visually-hidden">
+                      Designation
+                    </label>
+
+                    <input id="designation" class="text-16" type="text" placeholder="Designation *" name="designation"
+                      required>
+                  </div>
+                  <div class="field">
                     <label for="ContactForm-service" class="visually-hidden">
                       Service Type
                     </label>
@@ -950,6 +958,8 @@
           phone: document.getElementById("phone").value.trim(),
 
           email: document.getElementById("email").value.trim(),
+
+          designation: document.getElementById("designation").value.trim(),
 
           service: document.getElementById("service").value.trim(),
 

@@ -1123,14 +1123,11 @@
 
             else {
 
+              console.error("Apps Script error:", result);
+
               alert(
-                "Something went wrong. Please try again."
-              );
-
-
-              console.error(
-                "Apps Script error:",
-                result
+                "Submission failed:\n\n" +
+                (result.error || "Unknown error")
               );
 
             }

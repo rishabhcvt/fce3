@@ -1053,7 +1053,7 @@ document.addEventListener("DOMContentLoaded", function () {
   ========================================== */
 
   const googleScriptURL =
-    "YOUR_GOOGLE_APPS_SCRIPT_URL";
+    "https://script.google.com/macros/s/AKfycbxHMlasi0fy8GR8LYQw6Z5dpTB34K8EPSpCkMiQqgI9rfJw-LLsYT5CCra8SrVGnyqf/exec";
 
 
   /* ==========================================
@@ -1064,7 +1064,7 @@ document.addEventListener("DOMContentLoaded", function () {
   ========================================== */
 
   const pdfURL =
-    "assets/pitch-deck.pdf";
+    "assets/fce3_company_profile.pdf";
 
 
   /* ==========================================

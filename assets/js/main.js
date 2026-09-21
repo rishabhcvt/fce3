@@ -1289,6 +1289,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const leadData = {
 
+        formType: "pitchDeck",
+
         name: name,
 
         designation: designation,

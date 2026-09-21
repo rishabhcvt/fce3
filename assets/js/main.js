@@ -157,11 +157,10 @@ class ScrollTop extends HTMLElement {
 
         if (distanceToFooterTop < distanceFromFooter) {
           scrollToTopButton.style.transform = "scale(0)";
-          scrollToTopButton.style.bottom = `${
-            footerHeight +
+          scrollToTopButton.style.bottom = `${footerHeight +
             distanceFromFooter -
             (viewportHeight - buttonBottomRelativeToViewport)
-          }px`;
+            }px`;
         } else {
           scrollToTopButton.style.transform = "scale(1)";
           scrollToTopButton.style.bottom = "20px";
@@ -403,7 +402,7 @@ class NewBanner extends HTMLElement {
       slidesPerView: 3,
       breakpoints: {
         0: {
-          spaceBetween: 16,          
+          spaceBetween: 16,
         },
         575: {
           spaceBetween: 20,
@@ -880,7 +879,7 @@ class ExpertSlider extends HTMLElement {
 
   init() {
     this.slider = new Swiper(this.swiper, {
-       navigation: {
+      navigation: {
         nextEl: this.next,
         prevEl: this.prev,
       },
@@ -940,7 +939,7 @@ class ModalVideo extends HTMLElement {
 
   close() {
     this.modal.classList.remove("active");
-     document.body.classList.remove('no-scroll');
+    document.body.classList.remove('no-scroll');
     this.videoFrame.pause();
     this.videoFrame.currentTime = 0;
   }
@@ -1018,3 +1017,424 @@ class RecentProject extends HTMLElement {
 
 customElements.define("recent-project", RecentProject);
 
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ==========================================
+     ELEMENTS
+  ========================================== */
+
+  const downloadButton =
+    document.getElementById("pitchDeckDownloadBtn");
+
+  const modal =
+    document.getElementById("pitchDeckModal");
+
+  const closeButton =
+    document.getElementById("pitchDeckClose");
+
+  const form =
+    document.getElementById("pitchDeckForm");
+
+  const submitButton =
+    document.getElementById("pitchDeckSubmit");
+
+  const message =
+    document.getElementById("pitchDeckMessage");
+
+  const phoneInput =
+    document.getElementById("pitchPhone");
+
+
+  /* ==========================================
+     GOOGLE APPS SCRIPT URL
+     
+     Replace this with your Google Apps Script
+     Web App URL once we create it.
+  ========================================== */
+
+  const googleScriptURL =
+    "YOUR_GOOGLE_APPS_SCRIPT_URL";
+
+
+  /* ==========================================
+     PITCH DECK PDF LOCATION
+     
+     Change this if your PDF is located
+     somewhere else.
+  ========================================== */
+
+  const pdfURL =
+    "assets/pitch-deck.pdf";
+
+
+  /* ==========================================
+     OPEN POPUP
+  ========================================== */
+
+  if (downloadButton) {
+
+    downloadButton.addEventListener("click", function (e) {
+
+      e.preventDefault();
+
+      modal.classList.add("active");
+
+    });
+
+  }
+
+
+  /* ==========================================
+     CLOSE POPUP
+  ========================================== */
+
+  if (closeButton) {
+
+    closeButton.addEventListener("click", function () {
+
+      modal.classList.remove("active");
+
+    });
+
+  }
+
+
+  /* ==========================================
+     CLOSE WHEN CLICKING OUTSIDE POPUP
+  ========================================== */
+
+  if (modal) {
+
+    modal.addEventListener("click", function (e) {
+
+      if (e.target === modal) {
+
+        modal.classList.remove("active");
+
+      }
+
+    });
+
+  }
+
+
+  /* ==========================================
+     CLOSE POPUP WITH ESC KEY
+  ========================================== */
+
+  document.addEventListener("keydown", function (e) {
+
+    if (e.key === "Escape") {
+
+      if (modal.classList.contains("active")) {
+
+        modal.classList.remove("active");
+
+      }
+
+    }
+
+  });
+
+
+  /* ==========================================
+     PHONE NUMBER INPUT
+     
+     Only allows numbers
+     Maximum 10 digits
+  ========================================== */
+
+  if (phoneInput) {
+
+    phoneInput.addEventListener("input", function () {
+
+      this.value = this.value
+        .replace(/\D/g, "")
+        .substring(0, 10);
+
+    });
+
+  }
+
+
+  /* ==========================================
+     FORM SUBMISSION
+  ========================================== */
+
+  if (form) {
+
+    form.addEventListener("submit", async function (e) {
+
+      e.preventDefault();
+
+
+      /* ----------------------------------
+         GET FORM VALUES
+      ---------------------------------- */
+
+      const name =
+        document
+          .getElementById("pitchName")
+          .value
+          .trim();
+
+
+      const designation =
+        document
+          .getElementById("pitchDesignation")
+          .value
+          .trim();
+
+
+      const phone =
+        document
+          .getElementById("pitchPhone")
+          .value
+          .trim();
+
+
+      const email =
+        document
+          .getElementById("pitchEmail")
+          .value
+          .trim();
+
+
+      /* ==================================
+         VALIDATE NAME
+      ================================== */
+
+      if (name.length < 2) {
+
+        message.textContent =
+          "Please enter your full name.";
+
+        message.style.color = "red";
+
+        return;
+
+      }
+
+
+      /* ==================================
+         VALIDATE DESIGNATION
+      ================================== */
+
+      if (designation.length < 2) {
+
+        message.textContent =
+          "Please enter your designation.";
+
+        message.style.color = "red";
+
+        return;
+
+      }
+
+
+      /* ==================================
+         VALIDATE PHONE
+      ================================== */
+
+      if (!/^[6-9][0-9]{9}$/.test(phone)) {
+
+        message.textContent =
+          "Please enter a valid 10-digit mobile number.";
+
+        message.style.color = "red";
+
+        return;
+
+      }
+
+
+      /* ==================================
+         VALIDATE EMAIL
+      ================================== */
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+
+        message.textContent =
+          "Please enter a valid email address.";
+
+        message.style.color = "red";
+
+        return;
+
+      }
+
+
+      /* ==================================
+         CLEAR PREVIOUS MESSAGE
+      ================================== */
+
+      message.textContent = "";
+
+      message.style.color = "";
+
+
+      /* ==================================
+         DISABLE SUBMIT BUTTON
+      ================================== */
+
+      submitButton.disabled = true;
+
+      submitButton.textContent =
+        "Submitting...";
+
+
+      /* ==================================
+         PREPARE LEAD DATA
+      ================================== */
+
+      const leadData = {
+
+        name: name,
+
+        designation: designation,
+
+        phone: phone,
+
+        email: email
+
+      };
+
+
+      /* ==================================
+         SEND DATA TO GOOGLE SHEETS
+      ================================== */
+
+      try {
+
+        await fetch(
+
+          googleScriptURL,
+
+          {
+
+            method: "POST",
+
+            mode: "no-cors",
+
+            headers: {
+
+              "Content-Type":
+                "text/plain;charset=utf-8"
+
+            },
+
+            body:
+              JSON.stringify(leadData)
+
+          }
+
+        );
+
+
+        /* ==================================
+           DOWNLOAD PITCH DECK
+        ================================== */
+
+        const downloadLink =
+          document.createElement("a");
+
+        const pdfURL = "assets/fce3_company_profile.pdf";
+
+
+        downloadLink.href =
+          pdfURL;
+
+
+        downloadLink.download =
+          "fce3_company_profile.pdf";
+
+
+        document.body.appendChild(
+          downloadLink
+        );
+
+
+        downloadLink.click();
+
+
+        document.body.removeChild(
+          downloadLink
+        );
+
+
+        /* ==================================
+           SUCCESS MESSAGE
+        ================================== */
+
+        message.textContent =
+          "Thank you! Your pitch deck is downloading.";
+
+        message.style.color =
+          "green";
+
+
+        /* ==================================
+           RESET FORM
+        ================================== */
+
+        form.reset();
+
+
+        /* ==================================
+           RESET BUTTON
+        ================================== */
+
+        submitButton.disabled =
+          false;
+
+
+        submitButton.textContent =
+          "Download Pitch Deck";
+
+
+        /* ==================================
+           CLOSE POPUP AFTER 2 SECONDS
+        ================================== */
+
+        setTimeout(function () {
+
+          modal.classList.remove("active");
+
+          message.textContent = "";
+
+        }, 2000);
+
+
+      } catch (error) {
+
+        /* ==================================
+           ERROR HANDLING
+        ================================== */
+
+        console.error(
+          "Pitch deck form error:",
+          error
+        );
+
+
+        message.textContent =
+          "Something went wrong. Please try again.";
+
+        message.style.color =
+          "red";
+
+
+        submitButton.disabled =
+          false;
+
+
+        submitButton.textContent =
+          "Download Pitch Deck";
+
+      }
+
+    });
+
+  }
+
+});
